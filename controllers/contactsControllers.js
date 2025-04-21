@@ -48,10 +48,6 @@ export const updateStatusContact = async (req, res) => {
   const { id } = req.params;
   const { favorite } = req.body;
 
-  if (typeof favorite !== "boolean") {
-    throw HttpError(400, `Favorite field should be true or false`);
-  }
-
   const result = await contactsService.updateContactByID(id, { favorite });
 
   if (!result) {
