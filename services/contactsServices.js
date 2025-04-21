@@ -1,65 +1,33 @@
-import fs from "node:fs/promises";
-import path from "node:path";
-import { nanoid } from "nanoid";
 import HttpError from "../helpers/HttpError.js";
-
-const contactsPath = path.resolve("db", "contacts.json");
-
-export async function writeFile(contactsList) {
-  await fs.writeFile(contactsPath, JSON.stringify(contactsList, null, 2));
-}
+import Contact from "../db/models/contacts.js";
 
 export async function listContacts() {
-  return JSON.parse(await fs.readFile(contactsPath, "utf-8"));
+  return await Contact.findAll();
 }
 
 export async function getContactById(contactId) {
-  const contacts = await listContacts();
-  const filteredContacts = contacts.filter((p) => p.id === contactId);
-
-  if (filteredContacts.length === 0) {
-    return null;
-  }
-
-  return filteredContacts;
+  return Contact.findByPk(contactId);
 }
 
 export async function removeContact(contactId) {
-  const contacts = await listContacts();
-  const index = contacts.findIndex((p) => p.id === contactId);
-
-  if (index === -1) {
-    return null;
-  }
-  const [newContacts] = contacts.splice(index, 1);
-  await writeFile(contacts);
-  return newContacts;
+  return Contact.destroy({
+    where: {
+      id: contactId,
+    },
+  });
 }
 
-export async function addContact({ name, email, phone }) {
-  const newContact = {
-    id: nanoid(),
-    name,
-    email,
-    phone,
-  };
-  const contacts = await listContacts();
-  contacts.push(newContact);
-  await writeFile(contacts);
-  return newContact;
+export async function addContact(data) {
+  return await Contact.create(data);
 }
 
 export async function updateContactByID(contactId, data) {
-  const contacts = await listContacts();
-  const index = contacts.findIndex((p) => p.id === contactId);
-
-  if (index === -1) {
-    return HttpError(404, "Not found");
-  }
-  const updatedContact = { ...contacts[index], ...data };
-  contacts[index] = updatedContact;
-  await writeFile(contacts);
-  return updatedContact;
+  const contact = await getContactById(contactId);
+  if (!contact) return null;
+  return await Contact.update(data, {
+    where: { id: contactId },
+    returning: true,
+  });
 }
 
 export default {
