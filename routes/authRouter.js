@@ -1,9 +1,6 @@
 import express from "express";
 import validateBody from "../helpers/validateBody.js";
-import {
-  authSigninSchema,
-  authRegisterSchema,
-} from "../schemas/authSchemas.js";
+import { authLoginSchema, authRegisterSchema } from "../schemas/authSchemas.js";
 import authControllers from "../controllers/authControllers.js";
 import authenticate from "../helpers/authenticate.js";
 
@@ -16,9 +13,9 @@ authRouter.post(
 );
 
 authRouter.post(
-  "/signin",
-  validateBody(authSigninSchema),
-  authControllers.signinController
+  "/login",
+  validateBody(authLoginSchema),
+  authControllers.loginController
 );
 
 authRouter.get("/current", authenticate, authControllers.getCurrentController);
