@@ -1,39 +1,32 @@
 import HttpError from "../helpers/HttpError.js";
 import Contact from "../db/models/contacts.js";
 
-export async function listContacts() {
-  return await Contact.findAll();
-}
-
-export async function getContactById(contactId) {
-  return Contact.findByPk(contactId);
-}
-
-export async function removeContact(contactId) {
-  return Contact.destroy({
-    where: {
-      id: contactId,
-    },
+export async function listContacts(query) {
+  return await Contact.findAll({
+    where: query,
   });
+}
+
+export async function getContact(query) {
+  return Contact.findOne({ where: query });
+}
+
+export async function removeContact(query) {
+  const contact = await Contact.findOne({ where: query });
+  await Contact.destroy({ where: query });
+  return contact;
 }
 
 export async function addContact(data) {
   return await Contact.create(data);
 }
 
-export async function updateContactByID(contactId, data) {
-  const contact = await getContactById(contactId);
+export async function updateContact(query, data) {
+  const contact = await getContact(query);
   if (!contact) return null;
-  return await Contact.update(data, {
-    where: { id: contactId },
+  const [count, [updatedContact]] = await Contact.update(data, {
+    where: query,
     returning: true,
   });
+  return updatedContact;
 }
-
-export default {
-  addContact,
-  removeContact,
-  listContacts,
-  getContactById,
-  updateContactByID,
-};

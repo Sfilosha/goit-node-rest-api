@@ -2,6 +2,7 @@ import express from "express";
 import morgan from "morgan";
 import cors from "cors";
 import "dotenv/config";
+import authRouter from "./routes/authRouter.js";
 import contactsRouter from "./routes/contactsRouter.js";
 import sequelize from "./db/sequelize.js";
 import Contact from "./db/models/contacts.js";
@@ -21,6 +22,7 @@ app.use(morgan("tiny"));
 app.use(cors());
 app.use(express.json());
 
+app.use("/api/auth", authRouter);
 app.use("/api/contacts", contactsRouter);
 
 app.use((_, res) => {
