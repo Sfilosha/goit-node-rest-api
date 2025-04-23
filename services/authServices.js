@@ -39,13 +39,19 @@ export const loginUser = async (data) => {
   const token = generateToken({ email });
   console.log(token);
   await user.update({ token });
-  return { token };
+  return {
+    token,
+    user: {
+      email: user.email,
+      subscription: user.subscription,
+    },
+  };
 };
 
 export const logoutUser = async (id) => {
   const user = await findUser({ id });
   if (!user || !user.token) {
-    throw HttpError(404, "User not found");
+    throw HttpError(401, "Not authorized");
   }
 
   await user.update({ token: null });

@@ -1,5 +1,6 @@
 import * as authServices from "../services/authServices.js";
 import ctrlWrapper from "../helpers/ctrlWrapper.js";
+import HttpError from "../helpers/HttpError.js";
 
 const registerController = async (req, res) => {
   const newUser = await authServices.registerUser(req.body);
@@ -9,23 +10,22 @@ const registerController = async (req, res) => {
 };
 
 const loginController = async (req, res) => {
-  const { token } = await authServices.loginUser(req.body);
-  res.json({ token });
+  const result = await authServices.loginUser(req.body);
+  res.json(result);
 };
 
 const getCurrentController = (req, res) => {
-  const { email } = req.user;
+  const { email, subscription } = req.user;
   res.status(200).json({
     email,
+    subscription,
   });
 };
 
 const logoutController = async (req, res) => {
   const { id } = req.user;
-  await authServices.logoutUser({ id });
-  res.status(200).json({
-    message: "Logout successfully",
-  });
+  await authServices.logoutUser(id);
+  res.status(204).json();
 };
 
 export default {
