@@ -2,6 +2,7 @@ import User from "../db/models/users.js";
 import HttpError from "../helpers/HttpError.js";
 import bcrypt from "bcryptjs";
 import { generateToken } from "../helpers/jwt.js";
+import { generateAvatar } from "../helpers/avatars.js";
 
 export const findUser = (query) =>
   User.findOne({
@@ -20,7 +21,13 @@ export const registerUser = async (data) => {
     throw HttpError(409, "User with this email already exists");
   }
   const hashPassword = await bcrypt.hash(password, 10);
-  const newUser = await User.create({ ...data, password: hashPassword });
+  const avatarURL = generateAvatar(email);
+
+  const newUser = await User.create({
+    ...data,
+    password: hashPassword,
+    avatarURL,
+  });
   return newUser;
 };
 
@@ -36,8 +43,12 @@ export const loginUser = async (data) => {
   if (!passwordCompare) {
     throw HttpError(401, "Email or Password invalid");
   }
+  let avatarURL;
+  if (!user.avatarURL) {
+    avatarURL = generateAvatar(email);
+  }
   const token = generateToken({ email });
-  await user.update({ token });
+  await user.update({ token, avatarURL });
   return {
     token,
     user: {
@@ -54,4 +65,21 @@ export const logoutUser = async (id) => {
   }
 
   await user.update({ token: null });
+};
+
+export const updateAvatar = async (id, avatarURL) => {
+  const user = await findUser({ id });
+  if (!user || !user.token) {
+    throw HttpError(401, "Not authorized");
+  }
+
+  await user.update({ avatarURL });
+
+  return {
+    user: {
+      email: user.email,
+      subscription: user.subscription,
+      avatarURL: user.avatarURL,
+    },
+  };
 };

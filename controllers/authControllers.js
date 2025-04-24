@@ -1,19 +1,12 @@
 import * as authServices from "../services/authServices.js";
 import ctrlWrapper from "../helpers/ctrlWrapper.js";
-import HttpError from "../helpers/HttpError.js";
 import fs from "node:fs/promises";
 import path from "node:path";
 
 const avatarDir = path.resolve("public", "avatars");
+
 const registerController = async (req, res) => {
-  const avatar = null;
-  if (req.file) {
-    const { path: oldPath, filename } = req.file;
-    const newPath = path.join(avatarDir, filename);
-    await fs.rename(oldPath, newPath);
-    avatar = path.join("avatars", filename);
-  }
-  const newUser = await authServices.registerUser({ ...req.body, avatar });
+  const newUser = await authServices.registerUser(req.body);
   return res.status(201).json({
     email: newUser.email,
   });
@@ -38,9 +31,30 @@ const logoutController = async (req, res) => {
   res.status(204).json();
 };
 
+const updateAvatarController = async (req, res) => {
+  const { id } = req.user;
+
+  if (!req.file) {
+    return res.status(400).json({ message: "No file uploaded" });
+  }
+
+  const { path: oldPath, filename } = req.file;
+  const newFilename = `${id}-${Date.now()}-${filename}`;
+  const newPath = path.join(avatarDir, newFilename);
+
+  await fs.rename(oldPath, newPath);
+
+  const avatarURL = path.join("avatars", newFilename);
+
+  await authServices.updateAvatar(id, avatarURL);
+
+  res.status(200).json({ avatarURL });
+};
+
 export default {
   registerController: ctrlWrapper(registerController),
   loginController: ctrlWrapper(loginController),
   getCurrentController: ctrlWrapper(getCurrentController),
   logoutController: ctrlWrapper(logoutController),
+  updateAvatarController: ctrlWrapper(updateAvatarController),
 };
