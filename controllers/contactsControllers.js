@@ -46,6 +46,9 @@ export const updateContact = async (req, res) => {
   const { id } = req.params;
   const { id: owner } = req.user;
   const result = await contactsService.updateContact({ id, owner }, req.body);
+  if (!result) {
+    throw HttpError(404, "Not found");
+  }
   res.json(result);
 };
 
