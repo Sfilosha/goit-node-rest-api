@@ -1,9 +1,19 @@
 import * as authServices from "../services/authServices.js";
 import ctrlWrapper from "../helpers/ctrlWrapper.js";
 import HttpError from "../helpers/HttpError.js";
+import fs from "node:fs/promises";
+import path from "node:path";
 
+const avatarDir = path.resolve("public", "avatars");
 const registerController = async (req, res) => {
-  const newUser = await authServices.registerUser(req.body);
+  const avatar = null;
+  if (req.file) {
+    const { path: oldPath, filename } = req.file;
+    const newPath = path.join(avatarDir, filename);
+    await fs.rename(oldPath, newPath);
+    avatar = path.join("avatars", filename);
+  }
+  const newUser = await authServices.registerUser({ ...req.body, avatar });
   return res.status(201).json({
     email: newUser.email,
   });

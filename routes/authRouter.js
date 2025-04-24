@@ -3,11 +3,13 @@ import validateBody from "../helpers/validateBody.js";
 import { authLoginSchema, authRegisterSchema } from "../schemas/authSchemas.js";
 import authControllers from "../controllers/authControllers.js";
 import authenticate from "../helpers/authenticate.js";
+import upload from "../helpers/upload.js";
 
 const authRouter = express.Router();
 
 authRouter.post(
   "/register",
+  upload.single("avatarURL"),
   validateBody(authRegisterSchema),
   authControllers.registerController
 );
