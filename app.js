@@ -5,7 +5,6 @@ import "dotenv/config";
 import authRouter from "./routes/authRouter.js";
 import contactsRouter from "./routes/contactsRouter.js";
 import sequelize from "./db/sequelize.js";
-import Contact from "./db/models/contacts.js";
 
 const app = express();
 

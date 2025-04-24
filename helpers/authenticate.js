@@ -12,13 +12,18 @@ const authenticate = async (req, res, next) => {
   }
   const [bearer, token] = authorization.split(" ");
 
-  if (bearer !== "Bearer") {
+  if (bearer !== "Bearer" || !token) {
     return next(HttpError(401, "Not authorized")); // Bearer missing
   }
   const { payload, error } = verifyToken(token);
   if (error) {
     next(HttpError(401, error.message));
   }
+
+  if (error || !payload) {
+    return next(HttpError(401, "Not authorized")); // No crash when toke is expired
+  }
+
   const user = await findUser({ email: payload.email });
   if (!user || !user.token) {
     return next(HttpError(401, "Not authorized")); // User not found
