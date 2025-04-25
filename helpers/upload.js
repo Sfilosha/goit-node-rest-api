@@ -9,8 +9,7 @@ const storage = multer.diskStorage({
     callback(null, tempDir);
   },
   filename: (req, file, callback) => {
-    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    const filename = `${file.originalname}_${uniqueSuffix}`;
+    const filename = generateFilename(file.originalname);
     callback(null, filename);
   },
 });
@@ -32,5 +31,17 @@ const upload = multer({
   limits,
   fileFilter,
 });
+
+export const generateFilename = (originalName, userId = null) => {
+  const uniquePrefix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+  const ext = path.extname(originalName);
+  const cleanOriginalName = originalName.split(" ").join("");
+
+  if (userId) {
+    return `${userId}-avatar-user${ext}`;
+  }
+
+  return `${uniquePrefix}_${cleanOriginalName}${ext}`;
+};
 
 export default upload;

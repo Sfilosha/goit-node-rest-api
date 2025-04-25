@@ -2,6 +2,7 @@ import * as authServices from "../services/authServices.js";
 import ctrlWrapper from "../helpers/ctrlWrapper.js";
 import fs from "node:fs/promises";
 import path from "node:path";
+import { generateFilename } from "../helpers/upload.js";
 
 const avatarDir = path.resolve("public", "avatars");
 
@@ -18,10 +19,11 @@ const loginController = async (req, res) => {
 };
 
 const getCurrentController = (req, res) => {
-  const { email, subscription } = req.user;
+  const { email, subscription, avatarURL } = req.user;
   res.status(200).json({
     email,
     subscription,
+    avatarURL,
   });
 };
 
@@ -39,7 +41,8 @@ const updateAvatarController = async (req, res) => {
   }
 
   const { path: oldPath, filename } = req.file;
-  const newFilename = `${id}-${Date.now()}-${filename}`;
+  console.dir(filename);
+  const newFilename = generateFilename(req.file.originalname, id);
   const newPath = path.join(avatarDir, newFilename);
 
   await fs.rename(oldPath, newPath);
