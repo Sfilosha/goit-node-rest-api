@@ -4,6 +4,18 @@ import HttpError from "./HttpError.js";
 
 const tempDir = path.resolve("temp"); // Підставляє на початку шляху
 
+export const generateFilename = (originalName, userId = null) => {
+  const uniquePrefix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+  const ext = path.extname(originalName);
+  const cleanOriginalName = originalName.split(" ").join("");
+
+  if (userId) {
+    return `${userId}-avatar-user${ext}`;
+  }
+
+  return `${uniquePrefix}_${cleanOriginalName}${ext}`;
+};
+
 const storage = multer.diskStorage({
   destination: (req, file, callback) => {
     callback(null, tempDir);
@@ -31,17 +43,5 @@ const upload = multer({
   limits,
   fileFilter,
 });
-
-export const generateFilename = (originalName, userId = null) => {
-  const uniquePrefix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-  const ext = path.extname(originalName);
-  const cleanOriginalName = originalName.split(" ").join("");
-
-  if (userId) {
-    return `${userId}-avatar-user${ext}`;
-  }
-
-  return `${uniquePrefix}_${cleanOriginalName}${ext}`;
-};
 
 export default upload;
