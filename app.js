@@ -8,14 +8,9 @@ import sequelize from "./db/sequelize.js";
 
 const app = express();
 
-sequelize
-  .sync({ alter: true })
-  .then(() => {
-    console.log("All models were synchronized successfully.");
-  })
-  .catch((error) => {
-    console.error("Error synchronizing models:", error);
-  });
+sequelize.sync({ alter: true }).then(() => {
+  console.log("All models were synchronized successfully.");
+});
 
 app.use(morgan("tiny"));
 app.use(cors());
