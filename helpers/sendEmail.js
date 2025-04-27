@@ -15,13 +15,6 @@ const config = {
 
 const transporter = nodemailer.createTransport(config);
 
-// const data = {
-//   from: "Test User <bartolomeo827@ukr.net>",
-//   to: "sfiloosha@gmail.com",
-//   subject: "Nodemailer test",
-//   text: "Привіт. Ми тестуємо надсилання листів!",
-// };
-
 const sendEmail = (data) => {
   const emailOptions = { ...data, from: `Test User <${UKRNET_USER}>` };
   return transporter.sendMail(emailOptions);
