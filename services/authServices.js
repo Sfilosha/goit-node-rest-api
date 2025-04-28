@@ -122,6 +122,6 @@ export const resendVerifyEmail = async (email) => {
     throw HttpError(400, "Verification has already been passed");
   }
 
-  const verifyEmail = createVerifyEmail(email, user.verificationCode);
+  const verifyEmail = createVerifyEmail(email, user.verificationToken);
   await sendEmail(verifyEmail);
 };
